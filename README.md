@@ -1,23 +1,46 @@
-# React + Vite
+HOPE INC. - Customer Management System
+This is the official repository for the HOPE INC. Customer Management System. This project was scaffolded using React (Vite), Tailwind CSS v4, and Supabase.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+🚀 Developer Setup Instructions
+1. Install Dependencies Run this command in the project root to install all required packages:
+// I did this in Visual studio code
 
-Currently, two official plugins are available:
+Bash
+npm install
+2. Environment Configuration Create a .env file in the root directory and paste these exact credentials:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
-
-
-[http://localhost:5173/# Customer-Management-System-HOPE-INC-](http://localhost:5173/)
-CTRL + C - to turn off server
-npm run dev - to run the server
+Plaintext
 VITE_SUPABASE_URL=https://urkeyiasmlwmlzykilhq.supabase.co
 VITE_SUPABASE_ANON_KEY=sb_secret_ZT4OwdkOtxeUHt-IRgzdNQ_oacY7iEt
+3. Start Development Server Launch the app locally:
+
+Bash
+npm run dev
+Local URL: http://localhost:5173/
+
+Stop Server: Press CTRL + C in the terminal.
+
+🛠️ Tech Stack & Tools
+Frontend: React + Vite
+
+Styling: Tailwind CSS v4
+
+Database/Auth: Supabase
+
+Routing: React Router DOM
+
+📂 Project Structure Guide
+/src/pages - All page components go here (Dashboard, Customers, etc.).
+
+/src/lib/supabase.js - Contains the database client configuration.
+
+/src/index.css - Global styles and Tailwind imports.
+
+App.jsx - Defines the routing and application structure.
+
+📋 Team Workflow Rules
+Git Protocol: Always run git pull before starting your work to ensure you have the latest updates from the Project Lead.
+
+Styling: Use Tailwind utility classes for all UI work to maintain consistency.
+
+Commits: Use clear commit messages (e.g., feat: added customer table or fix: login styling).
