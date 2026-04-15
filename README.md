@@ -12,6 +12,7 @@ npm install
 Plaintext
 VITE_SUPABASE_URL=https://urkeyiasmlwmlzykilhq.supabase.co
 VITE_SUPABASE_ANON_KEY=sb_secret_ZT4OwdkOtxeUHt-IRgzdNQ_oacY7iEt
+
 3. Start Development Server Launch the app locally:
 
 Bash
