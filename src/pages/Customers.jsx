@@ -1,6 +1,7 @@
 import { useState } from "react";
 import AddCustomerModal from "../components/AddCustomerModal";
 import EditCustomerModal from "../components/EditCustomerModal";
+import DeleteConfirmDialog from "../components/DeleteConfirmDialog";
 
 
 export default function Customers() {
