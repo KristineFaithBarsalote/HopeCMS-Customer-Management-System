@@ -32,6 +32,12 @@ export default function Customers() {
   };
 
 
+const confirmSoftDelete = async () => {
+    // Logic: Update status to INACTIVE instead of deleting the row
+    console.log("Soft-deleting:", selectedCustomer.custno);
+    setIsDeleteOpen(false);
+  };
+  
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -84,12 +90,14 @@ export default function Customers() {
                 >
                   Edit
                 </button>
-                <button
+               {currentUser.rights?.cust_del === 1 && (
+                  <button
                   onClick={() => handleDelete({ custno: 'C0001', custname: 'Example Corp' })}
                   className="text-red-600 hover:underline text-sm font-medium"
-                >
-                  Delete
+                  >
+                 Delete
                 </button>
+                )}
               </td>
             </tr>
           </tbody>
@@ -110,10 +118,11 @@ export default function Customers() {
       />
 
 
-      <DeleteConfirmDialog
-        isOpen={isDeleteOpen}
-        customerName={selectedCustomer?.custname}
-        onClose={() => setIsDeleteOpen(false)}
+     <DeleteConfirmDialog
+       isOpen={isDeleteOpen}
+       customerName={selectedCustomer?.custname}
+       onClose={() => setIsDeleteOpen(false)}
+       onConfirm={confirmSoftDelete} // Add this line
       />
     </div>
   );
