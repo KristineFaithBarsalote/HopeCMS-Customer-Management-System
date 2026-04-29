@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
 
 
 // Components
@@ -55,6 +55,9 @@ function LayoutWrapper({ children }) {
 
 
 function App() {
+  // Temporary Mock for Sprint 2 testing: 
+  // Set user_type to 'USER' to test the block, or 'ADMIN' to see the page.
+  const currentUser = { user_type: 'ADMIN', rights: { cust_del: 1 } };
   return (
     <BrowserRouter>
       <LayoutWrapper>
@@ -68,8 +71,8 @@ function App() {
           {/* Customer Detail & Sales Panels (PR-03) */}
           <Route path="/customers/:id" element={<CustomerDetail />} />
          
-          {/* Deleted Customers / Recovery (PR-05) */}
-          <Route path="/deleted-customers" element={<DeletedCustomers />} />
+          {/* Deleted Customers / Recovery (PR-05) Added route guard to this so USER can't accept DeletedCustomer */}
+          <Route path="/deleted-customers" element={currentUser?.user_type === 'USER' ? <Navigate to="/customers" /> : <DeletedCustomers />} />
          
           {/* Read-Only Product Catalogue (PR-04) */}
           <Route path="/products" element={<Products />} />
@@ -82,6 +85,7 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
 
+          
 
           {/* 404 Catch-all */}
           <Route path="*" element={
