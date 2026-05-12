@@ -1,130 +1,188 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "../lib/supabase";
 import AddCustomerModal from "../components/AddCustomerModal";
 import EditCustomerModal from "../components/EditCustomerModal";
 import DeleteConfirmDialog from "../components/DeleteConfirmDialog";
 
-
 export default function Customers() {
-  // Modal Visibility States
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-
-
-  // State to track which customer is being edited or deleted
   const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [customers, setCustomers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [currentUser, setCurrentUser] = useState(null);
 
+  useEffect(() => {
+    fetchCurrentUser();
+  }, []);
 
-  // Mock User Role (In Sprint 2, this will come from your AuthContext)
-  // Options: 'USER', 'ADMIN', 'SUPERADMIN'
-  const currentUser = { user_type: 'ADMIN' };
+  useEffect(() => {
+    fetchCustomers();
+  }, []);
 
+  async function fetchCurrentUser() {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { data } = await supabase
+        .from("user")
+        .select("*")
+        .eq("id", user.id)
+        .single();
+      setCurrentUser(data);
+    }
+  }
+
+  async function fetchCustomers() {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("customer")
+      .select("*")
+      .order("custno");
+
+    if (error) console.error("Error fetching customers:", error.message);
+    else setCustomers(data || []);
+    setLoading(false);
+  }
 
   const handleEdit = (customer) => {
     setSelectedCustomer(customer);
     setIsEditOpen(true);
   };
 
-
   const handleDelete = (customer) => {
     setSelectedCustomer(customer);
     setIsDeleteOpen(true);
   };
 
+  const confirmSoftDelete = async () => {
+    const { error } = await supabase
+      .from("customer")
+      .update({
+        record_status: "INACTIVE",
+        stamp: `Soft-deleted by ${currentUser?.email} on ${new Date().toISOString()}`
+      })
+      .eq("custno", selectedCustomer.custno);
 
-const confirmSoftDelete = async () => {
-    // Logic: Update status to INACTIVE instead of deleting the row
-    console.log("Soft-deleting:", selectedCustomer.custno);
-    setIsDeleteOpen(false);
+    if (error) console.error("Soft-delete error:", error.message);
+    else {
+      setIsDeleteOpen(false);
+      fetchCustomers();
+    }
   };
-  
+
+  const filtered = customers.filter(c =>
+    c.custname?.toLowerCase().includes(search.toLowerCase()) ||
+    c.payterm?.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const isAdmin = currentUser?.user_type === "ADMIN" || currentUser?.user_type === "SUPERADMIN";
+  const isSuperAdmin = currentUser?.user_type === "SUPERADMIN";
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-800">Customer Management</h1>
-        <button
-          onClick={() => setIsAddOpen(true)}
-          className="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 transition"
-        >
-          + Add Customer
-        </button>
+        {isAdmin && (
+          <button
+            onClick={() => setIsAddOpen(true)}
+            className="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 transition"
+          >
+            + Add Customer
+          </button>
+        )}
       </div>
 
+      <input
+        type="text"
+        placeholder="Search by name or pay term..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        className="w-full border border-gray-300 rounded px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
 
       <div className="bg-white rounded-lg shadow overflow-hidden border border-gray-200">
-        <table className="w-full text-left border-collapse">
-          <thead className="bg-gray-50 border-b">
-            <tr>
-              <th className="p-4 font-semibold text-gray-600">ID</th>
-              <th className="p-4 font-semibold text-gray-600">Customer Name</th>
-              <th className="p-4 font-semibold text-gray-600">Address</th>
-              <th className="p-4 font-semibold text-gray-600">Pay Term</th>
-              <th className="p-4 font-semibold text-gray-600">Status</th>
-             
-              {/* Stamp column gated for ADMIN/SUPERADMIN only  */}
-              {(currentUser.user_type === 'ADMIN' || currentUser.user_type === 'SUPERADMIN') && (
-                <th className="p-4 font-semibold text-gray-600">Stamp</th>
-              )}
-             
-              <th className="p-4 font-semibold text-gray-600 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y">
-            <tr className="hover:bg-gray-50">
-              <td className="p-4 text-sm font-mono text-gray-500">C0001</td>
-              <td className="p-4 font-medium text-gray-900">Example Corp</td>
-              <td className="p-4 text-sm text-gray-600">123 Manila St.</td>
-              <td className="p-4 text-sm">30D</td>
-              <td className="p-4 text-xs font-bold text-green-600">ACTIVE</td>
-             
-              {/* Stamp data gated  */}
-              {(currentUser.user_type === 'ADMIN' || currentUser.user_type === 'SUPERADMIN') && (
-                <td className="p-4 text-xs text-gray-400">2025-04-21 17:20</td>
-              )}
-
-
-              <td className="p-4 text-right space-x-3">
-                <button
-                  onClick={() => handleEdit({ custno: 'C0001', custname: 'Example Corp', address: '123 Manila St.', payterm: '30D' })}
-                  className="text-blue-600 hover:underline text-sm font-medium"
-                >
-                  Edit
-                </button>
-               {currentUser.rights?.cust_del === 1 && (
-                  <button
-                  onClick={() => handleDelete({ custno: 'C0001', custname: 'Example Corp' })}
-                  className="text-red-600 hover:underline text-sm font-medium"
-                  >
-                 Delete
-                </button>
+        {loading ? (
+          <div className="p-8 text-center text-gray-400">Loading customers...</div>
+        ) : filtered.length === 0 ? (
+          <div className="p-8 text-center text-gray-400">No customers found.</div>
+        ) : (
+          <table className="w-full text-left border-collapse">
+            <thead className="bg-gray-50 border-b">
+              <tr>
+                <th className="p-4 font-semibold text-gray-600">ID</th>
+                <th className="p-4 font-semibold text-gray-600">Customer Name</th>
+                <th className="p-4 font-semibold text-gray-600">Address</th>
+                <th className="p-4 font-semibold text-gray-600">Pay Term</th>
+                <th className="p-4 font-semibold text-gray-600">Status</th>
+                {isAdmin && (
+                  <th className="p-4 font-semibold text-gray-600">Stamp</th>
                 )}
-              </td>
-            </tr>
-          </tbody>
-        </table>
+                <th className="p-4 font-semibold text-gray-600 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y">
+              {filtered.map((customer) => (
+                <tr key={customer.custno} className="hover:bg-gray-50">
+                  <td className="p-4 text-sm font-mono text-gray-500">{customer.custno}</td>
+                  <td className="p-4 font-medium text-gray-900">
+                    <a href={`/customers/${customer.custno}`} className="hover:text-blue-600 hover:underline">
+                      {customer.custname}
+                    </a>
+                  </td>
+                  <td className="p-4 text-sm text-gray-600">{customer.address}</td>
+                  <td className="p-4 text-sm">{customer.payterm}</td>
+                  <td className="p-4">
+                    <span className={`text-xs font-bold ${customer.record_status === 'ACTIVE' ? 'text-green-600' : 'text-red-500'}`}>
+                      {customer.record_status}
+                    </span>
+                  </td>
+                  {isAdmin && (
+                    <td className="p-4 text-xs text-gray-400">{customer.stamp || '—'}</td>
+                  )}
+                  <td className="p-4 text-right space-x-3">
+                    {isAdmin && (
+                      <button
+                        onClick={() => handleEdit(customer)}
+                        className="text-blue-600 hover:underline text-sm font-medium"
+                      >
+                        Edit
+                      </button>
+                    )}
+                    {isSuperAdmin && customer.record_status === 'ACTIVE' && (
+                      <button
+                        onClick={() => handleDelete(customer)}
+                        className="text-red-600 hover:underline text-sm font-medium"
+                      >
+                        Delete
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
 
-
-      {/* Modals for PR-02  */}
       <AddCustomerModal
         isOpen={isAddOpen}
         onClose={() => setIsAddOpen(false)}
+        onSuccess={fetchCustomers}
       />
-     
       <EditCustomerModal
         isOpen={isEditOpen}
         customerData={selectedCustomer}
         onClose={() => setIsEditOpen(false)}
+        onSuccess={fetchCustomers}
       />
-
-
-     <DeleteConfirmDialog
-       isOpen={isDeleteOpen}
-       customerName={selectedCustomer?.custname}
-       onClose={() => setIsDeleteOpen(false)}
-       onConfirm={confirmSoftDelete} // Add this line
+      <DeleteConfirmDialog
+        isOpen={isDeleteOpen}
+        customerName={selectedCustomer?.custname}
+        onClose={() => setIsDeleteOpen(false)}
+        onConfirm={confirmSoftDelete}
       />
     </div>
   );
 }
-
