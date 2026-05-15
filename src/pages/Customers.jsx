@@ -3,6 +3,8 @@ import { supabase } from "../lib/supabase";
 import AddCustomerModal from "../components/AddCustomerModal";
 import EditCustomerModal from "../components/EditCustomerModal";
 import DeleteConfirmDialog from "../components/DeleteConfirmDialog";
+import Toast from "../components/Toast";
+import SkeletonRow from "../components/SkeletonRow";
 
 export default function Customers() {
   const [isAddOpen, setIsAddOpen] = useState(false);
@@ -13,12 +15,10 @@ export default function Customers() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [currentUser, setCurrentUser] = useState(null);
+  const [toast, setToast] = useState(null);
 
   useEffect(() => {
     fetchCurrentUser();
-  }, []);
-
-  useEffect(() => {
     fetchCustomers();
   }, []);
 
@@ -26,10 +26,7 @@ export default function Customers() {
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
       const { data } = await supabase
-        .from("user")
-        .select("*")
-        .eq("id", user.id)
-        .single();
+        .from("user").select("*").eq("id", user.id).single();
       setCurrentUser(data);
     }
   }
@@ -37,11 +34,8 @@ export default function Customers() {
   async function fetchCustomers() {
     setLoading(true);
     const { data, error } = await supabase
-      .from("customer")
-      .select("*")
-      .order("custno");
-
-    if (error) console.error("Error fetching customers:", error.message);
+      .from("customer").select("*").order("custno");
+    if (error) setToast({ message: "Failed to load customers.", type: "error" });
     else setCustomers(data || []);
     setLoading(false);
   }
@@ -65,8 +59,9 @@ export default function Customers() {
       })
       .eq("custno", selectedCustomer.custno);
 
-    if (error) console.error("Soft-delete error:", error.message);
+    if (error) setToast({ message: "Failed to delete customer.", type: "error" });
     else {
+      setToast({ message: "Customer deleted successfully.", type: "success" });
       setIsDeleteOpen(false);
       fetchCustomers();
     }
@@ -82,6 +77,8 @@ export default function Customers() {
 
   return (
     <div className="space-y-6">
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-800">Customer Management</h1>
         {isAdmin && (
@@ -103,27 +100,29 @@ export default function Customers() {
       />
 
       <div className="bg-white rounded-lg shadow overflow-hidden border border-gray-200">
-        {loading ? (
-          <div className="p-8 text-center text-gray-400">Loading customers...</div>
-        ) : filtered.length === 0 ? (
-          <div className="p-8 text-center text-gray-400">No customers found.</div>
-        ) : (
-          <table className="w-full text-left border-collapse">
-            <thead className="bg-gray-50 border-b">
+        <table className="w-full text-left border-collapse">
+          <thead className="bg-gray-50 border-b">
+            <tr>
+              <th className="p-4 font-semibold text-gray-600">ID</th>
+              <th className="p-4 font-semibold text-gray-600">Customer Name</th>
+              <th className="p-4 font-semibold text-gray-600">Address</th>
+              <th className="p-4 font-semibold text-gray-600">Pay Term</th>
+              <th className="p-4 font-semibold text-gray-600">Status</th>
+              {isAdmin && <th className="p-4 font-semibold text-gray-600">Stamp</th>}
+              <th className="p-4 font-semibold text-gray-600 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y">
+            {loading ? (
+              Array.from({ length: 6 }).map((_, i) => <SkeletonRow key={i} cols={isAdmin ? 7 : 6} />)
+            ) : filtered.length === 0 ? (
               <tr>
-                <th className="p-4 font-semibold text-gray-600">ID</th>
-                <th className="p-4 font-semibold text-gray-600">Customer Name</th>
-                <th className="p-4 font-semibold text-gray-600">Address</th>
-                <th className="p-4 font-semibold text-gray-600">Pay Term</th>
-                <th className="p-4 font-semibold text-gray-600">Status</th>
-                {isAdmin && (
-                  <th className="p-4 font-semibold text-gray-600">Stamp</th>
-                )}
-                <th className="p-4 font-semibold text-gray-600 text-right">Actions</th>
+                <td colSpan={isAdmin ? 7 : 6} className="p-8 text-center text-gray-400">
+                  No customers found.
+                </td>
               </tr>
-            </thead>
-            <tbody className="divide-y">
-              {filtered.map((customer) => (
+            ) : (
+              filtered.map((customer) => (
                 <tr key={customer.custno} className="hover:bg-gray-50">
                   <td className="p-4 text-sm font-mono text-gray-500">{customer.custno}</td>
                   <td className="p-4 font-medium text-gray-900">
@@ -143,46 +142,26 @@ export default function Customers() {
                   )}
                   <td className="p-4 text-right space-x-3">
                     {isAdmin && (
-                      <button
-                        onClick={() => handleEdit(customer)}
-                        className="text-blue-600 hover:underline text-sm font-medium"
-                      >
+                      <button onClick={() => handleEdit(customer)} className="text-blue-600 hover:underline text-sm font-medium">
                         Edit
                       </button>
                     )}
                     {isSuperAdmin && customer.record_status === 'ACTIVE' && (
-                      <button
-                        onClick={() => handleDelete(customer)}
-                        className="text-red-600 hover:underline text-sm font-medium"
-                      >
+                      <button onClick={() => handleDelete(customer)} className="text-red-600 hover:underline text-sm font-medium">
                         Delete
                       </button>
                     )}
                   </td>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+              ))
+            )}
+          </tbody>
+        </table>
       </div>
 
-      <AddCustomerModal
-        isOpen={isAddOpen}
-        onClose={() => setIsAddOpen(false)}
-        onSuccess={fetchCustomers}
-      />
-      <EditCustomerModal
-        isOpen={isEditOpen}
-        customerData={selectedCustomer}
-        onClose={() => setIsEditOpen(false)}
-        onSuccess={fetchCustomers}
-      />
-      <DeleteConfirmDialog
-        isOpen={isDeleteOpen}
-        customerName={selectedCustomer?.custname}
-        onClose={() => setIsDeleteOpen(false)}
-        onConfirm={confirmSoftDelete}
-      />
+      <AddCustomerModal isOpen={isAddOpen} onClose={() => setIsAddOpen(false)} onSuccess={fetchCustomers} />
+      <EditCustomerModal isOpen={isEditOpen} customerData={selectedCustomer} onClose={() => setIsEditOpen(false)} onSuccess={fetchCustomers} />
+      <DeleteConfirmDialog isOpen={isDeleteOpen} customerName={selectedCustomer?.custname} onClose={() => setIsDeleteOpen(false)} onConfirm={confirmSoftDelete} />
     </div>
   );
 }
