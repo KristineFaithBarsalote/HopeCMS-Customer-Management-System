@@ -1,0 +1,214 @@
+HOPE, INC. – CUSTOMER MANAGEMENT SYSTEM
+Sprint 3 QA & Documentation Report
+New Era University – College of Computer Studies
+
+Sprint Theme: Final Integration, Reports & System Validation
+
+1. Introduction
+Sprint 3 focused on final system integration, reports testing, authentication validation, UI polishing, and preparation for project defense and final documentation.
+This report documents the final QA verification and overall system validation results.
+
+
+2. Sprint Objectives
+The following objectives were expected during Sprint 3:
+
+
+Verify frontend and backend integration
+
+Validate CRUD functionalities
+
+Test reports and authentication
+
+Perform final UI checking
+
+Prepare final documentation and defense materials
+
+
+3. System Integration Testing
+
+Integration Area
+Status
+Remarks
+Frontend and backend connected properly
+✅ PASS
+Connection stable
+Database operations functioning
+✅ PASS
+Database interactions working
+No major crashes or critical errors
+✅ PASS
+Stable during testing
+
+
+4. CRUD Functionalities
+Customers Module
+
+Functionality
+Status
+Remarks
+Add customer
+✅ PASS
+Operational
+Edit customer
+✅ PASS
+Operational
+Delete / Soft delete
+⚠️ PARTIAL
+Limited implementation
+Recover customer
+⚠️ PARTIAL
+Limited testing
+
+
+Products Module
+
+Functionality
+Status
+Remarks
+Product list loads
+✅ PASS
+Functional
+Product details display properly
+✅ PASS
+Functional
+Product permissions enforced
+✅ PASS
+View-only restrictions operational
+
+
+Sales Module
+
+Functionality
+Status
+Remarks
+Sales records display properly
+✅ PASS
+Functional
+Sales details load correctly
+✅ PASS
+Functional
+
+
+5. Authentication Testing
+
+Authentication Feature
+Status
+Remarks
+Login functionality
+✅ PASS
+Operational
+Logout functionality
+✅ PASS
+Operational
+Register functionality
+✅ PASS
+Operational
+Session persistence
+✅ PASS
+Working correctly
+
+
+6. Reports Testing
+
+Report Feature
+Status
+Remarks
+Customer sales report
+✅ PASS
+Functional
+Product revenue report
+✅ PASS
+Functional
+Report pages load correctly
+✅ PASS
+Accessible
+
+
+7. Final UI Verification
+
+UI Verification
+Status
+No broken layouts
+✅ PASS
+No missing pages or buttons
+✅ PASS
+Navigation smooth and functional
+✅ PASS
+Responsive design acceptable
+✅ PASS
+
+
+8. Final QA Testing
+
+QA Check
+Status
+No major console errors
+✅ PASS
+No broken routes
+✅ PASS
+No unauthorized access
+✅ PASS
+Permissions functioning properly
+✅ PASS
+
+
+9. Defense Preparation Checklist
+
+Preparation Item
+Status
+Project overview prepared
+✅
+User roles understood
+✅
+Sprint contributions prepared
+✅
+Demo flow prepared
+✅
+Screenshots/files organized
+✅
+GitHub repository updated
+✅
+
+
+10. Final Documentation
+
+Documentation Item
+Status
+Sprint 3 documentation completed
+✅
+Final reports uploaded
+✅
+QA files organized
+✅
+GitHub repository updated
+✅
+
+
+11. QA Observations
+
+Core CMS functionalities operated properly during final testing.
+
+Reports and authentication systems functioned correctly.
+
+Navigation and UI responsiveness remained stable.
+
+User permissions and restrictions continued functioning properly.
+
+Some CRUD functionalities had limited implementation based on the current project scope.
+
+
+12. Pull Request Documentation
+
+Pull Request
+Status
+test/sprint3-e2e-production
+✅ Completed
+docs/user-manual-final
+✅ Completed
+docs/presentation-slides
+✅ Completed
+
+
+13. Conclusion
+Sprint 3 successfully completed the final validation phase of the HOPE, INC. Customer Management System. Authentication, reporting, customer management, navigation, and permissions were verified and operational. Final QA testing, documentation, and defense preparation were completed successfully.
+You’re out of messages with the most adv
