@@ -1,0 +1,171 @@
+HOPE, INC. – CUSTOMER MANAGEMENT SYSTEM
+Sprint 2 QA & Documentation Report
+New Era University – College of Computer Studies
+
+Sprint Theme: Customer CRUD, Rights Enforcement & Security Testing
+
+1. Introduction
+Sprint 2 focused on implementing customer management functionalities, enforcing user rights and permissions, validating security restrictions, and testing soft delete functionality.
+This report documents the QA verification process and testing results for Sprint 2.
+
+
+2. Sprint Objectives
+The following objectives were expected during Sprint 2:
+
+
+Validate user rights and permissions
+
+Verify view-only enforcement
+
+Test soft delete and recovery features
+
+Confirm security and RLS restrictions
+
+Validate visibility restrictions based on user type
+
+
+3. User Roles Tested
+
+User Role
+Status
+USER
+✅ Tested
+SUPERADMIN
+✅ Tested
+Note: ADMIN role was not implemented in the current project version.
+
+
+4. Rights Matrix Testing
+
+Test Area
+Status
+Remarks
+27-case rights matrix
+⚠️ PARTIALLY COMPLETED
+Full formal matrix documentation not completed
+
+
+5. View-Only Enforcement Testing
+
+Module
+Mutation Buttons Present?
+Status
+Sales Page
+No
+✅ PASS
+Sales Detail Page
+No
+✅ PASS
+Product Page
+No
+✅ PASS
+Price History Page
+Not implemented
+⚠️ N/A
+
+Findings
+
+Sales and Product modules remained strictly read-only.
+
+No unauthorized add, edit, or delete actions were detected.
+
+View-only restrictions worked properly for tested user roles.
+
+
+6. Soft Delete Testing
+
+Test Case
+Status
+Remarks
+SUPERADMIN can soft-delete customer
+✅ PASS
+Function working properly
+Deleted customer hidden from USER view
+✅ PASS
+Filtering operational
+Deleted customer visible to SUPERADMIN
+✅ PASS
+Visibility restriction working
+
+
+7. Recovery Testing
+
+Test Case
+Status
+Remarks
+Recover deleted customer
+✅ PASS
+Recovery operational
+Customer visible again after recovery
+✅ PASS
+Restoration successful
+
+
+8. Security & API Testing
+
+Security Check
+Status
+Remarks
+Unauthorized access blocked
+✅ PASS
+RLS restrictions functioning
+USER cannot access restricted records
+✅ PASS
+Security validation successful
+
+
+9. Stamp Visibility Testing
+
+User Type
+Stamp Column Visible?
+Status
+USER
+No
+✅ PASS
+SUPERADMIN
+Yes
+✅ PASS
+
+
+10. QA Observations
+
+Rights enforcement operated correctly for implemented user roles.
+
+Read-only modules successfully prevented unauthorized actions.
+
+Soft delete and recovery functionalities worked properly.
+
+Security restrictions and visibility filtering operated correctly.
+
+Complete 27-case matrix documentation was not fully finalized.
+
+
+11. Sprint 2 Deliverables Completed
+
+✅ Rights enforcement testing completed
+
+✅ View-only enforcement validated
+
+✅ Soft delete testing completed
+
+✅ Recovery testing completed
+
+✅ Security restrictions verified
+
+✅ Stamp visibility tested
+
+⚠️ Partial rights matrix documentation only
+
+
+12. Pull Request Documentation
+
+Pull Request
+Status
+test/sprint2-rights-27-cases
+⚠️ Partially Completed
+test/sprint2-viewonly-softdelete
+✅ Completed
+
+
+13. Conclusion
+Sprint 2 successfully validated major system security features including rights enforcement, visibility restrictions, view-only modules, and soft delete functionality. Core security and permission-related functionalities operated as expected during testing.
