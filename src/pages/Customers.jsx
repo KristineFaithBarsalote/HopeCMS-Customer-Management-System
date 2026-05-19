@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
-import AddCustomerModal from "../components/AddCustomerModal";
-import EditCustomerModal from "../components/EditCustomerModal";
-import DeleteConfirmDialog from "../components/DeleteConfirmDialog";
-import Toast from "../components/Toast";
-import SkeletonRow from "../components/SkeletonRow";
+import AddCustomerModal from "../Components/AddCustomerModal";
+import EditCustomerModal from "../Components/EditCustomerModal";
+import DeleteConfirmDialog from "../Components/DeleteConfirmDialog";
+import Toast from "../Components/Toast";
+import SkeletonRow from "../Components/SkeletonRow";
 
 export default function Customers() {
+  const [userType, setUserType] = useState(null);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
@@ -14,27 +15,34 @@ export default function Customers() {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [currentUser, setCurrentUser] = useState(null);
   const [toast, setToast] = useState(null);
 
+  const isAdmin = userType === "ADMIN" || userType === "SUPERADMIN";
+  const isSuperAdmin = userType === "SUPERADMIN";
+
   useEffect(() => {
-    fetchCurrentUser();
     fetchCustomers();
   }, []);
 
-  async function fetchCurrentUser() {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      const { data } = await supabase
-        .from("user").select("*").eq("id", user.id).single();
-      setCurrentUser(data);
-    }
-  }
-
   async function fetchCustomers() {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("customer").select("*").order("custno");
+
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) { setLoading(false); return; }
+
+    const { data: userRow } = await supabase
+      .from("user")
+      .select("user_type")
+      .eq("id", session.user.id)
+      .single();
+
+    const type = userRow?.user_type;
+    setUserType(type);
+
+    let query = supabase.from("customer").select("*").order("custno");
+    if (type === "USER") query = query.eq("record_status", "ACTIVE");
+
+    const { data, error } = await query;
     if (error) setToast({ message: "Failed to load customers.", type: "error" });
     else setCustomers(data || []);
     setLoading(false);
@@ -51,11 +59,12 @@ export default function Customers() {
   };
 
   const confirmSoftDelete = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
     const { error } = await supabase
       .from("customer")
       .update({
         record_status: "INACTIVE",
-        stamp: `Soft-deleted by ${currentUser?.email} on ${new Date().toISOString()}`
+        stamp: `Soft-deleted by ${user?.email} on ${new Date().toISOString()}`
       })
       .eq("custno", selectedCustomer.custno);
 
@@ -71,9 +80,6 @@ export default function Customers() {
     c.custname?.toLowerCase().includes(search.toLowerCase()) ||
     c.payterm?.toLowerCase().includes(search.toLowerCase())
   );
-
-  const isAdmin = currentUser?.user_type === "ADMIN" || currentUser?.user_type === "SUPERADMIN";
-  const isSuperAdmin = currentUser?.user_type === "SUPERADMIN";
 
   return (
     <div className="space-y-6">
@@ -114,7 +120,9 @@ export default function Customers() {
           </thead>
           <tbody className="divide-y">
             {loading ? (
-              Array.from({ length: 6 }).map((_, i) => <SkeletonRow key={i} cols={isAdmin ? 7 : 6} />)
+              Array.from({ length: 6 }).map((_, i) => (
+                <SkeletonRow key={i} cols={isAdmin ? 7 : 6} />
+              ))
             ) : filtered.length === 0 ? (
               <tr>
                 <td colSpan={isAdmin ? 7 : 6} className="p-8 text-center text-gray-400">
@@ -142,12 +150,18 @@ export default function Customers() {
                   )}
                   <td className="p-4 text-right space-x-3">
                     {isAdmin && (
-                      <button onClick={() => handleEdit(customer)} className="text-blue-600 hover:underline text-sm font-medium">
+                      <button
+                        onClick={() => handleEdit(customer)}
+                        className="text-blue-600 hover:underline text-sm font-medium"
+                      >
                         Edit
                       </button>
                     )}
                     {isSuperAdmin && customer.record_status === 'ACTIVE' && (
-                      <button onClick={() => handleDelete(customer)} className="text-red-600 hover:underline text-sm font-medium">
+                      <button
+                        onClick={() => handleDelete(customer)}
+                        className="text-red-600 hover:underline text-sm font-medium"
+                      >
                         Delete
                       </button>
                     )}
@@ -159,9 +173,23 @@ export default function Customers() {
         </table>
       </div>
 
-      <AddCustomerModal isOpen={isAddOpen} onClose={() => setIsAddOpen(false)} onSuccess={fetchCustomers} />
-      <EditCustomerModal isOpen={isEditOpen} customerData={selectedCustomer} onClose={() => setIsEditOpen(false)} onSuccess={fetchCustomers} />
-      <DeleteConfirmDialog isOpen={isDeleteOpen} customerName={selectedCustomer?.custname} onClose={() => setIsDeleteOpen(false)} onConfirm={confirmSoftDelete} />
+      <AddCustomerModal
+        isOpen={isAddOpen}
+        onClose={() => setIsAddOpen(false)}
+        onSuccess={fetchCustomers}
+      />
+      <EditCustomerModal
+        isOpen={isEditOpen}
+        customerData={selectedCustomer}
+        onClose={() => setIsEditOpen(false)}
+        onSuccess={fetchCustomers}
+      />
+      <DeleteConfirmDialog
+        isOpen={isDeleteOpen}
+        customerName={selectedCustomer?.custname}
+        onClose={() => setIsDeleteOpen(false)}
+        onConfirm={confirmSoftDelete}
+      />
     </div>
   );
 }

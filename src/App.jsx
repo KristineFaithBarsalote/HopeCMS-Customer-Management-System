@@ -18,12 +18,15 @@ import UserManagement from "./pages/UserManagement";
 import CustomerSalesSummaryPage from "./pages/CustomerSalesSummaryPage";
 import ProductRevenuePage from "./pages/ProductRevenuePage";
 
-function LayoutWrapper({ children }) {
+function LayoutWrapper({ children, session }) {
   const location = useLocation();
   const authPaths = ["/login", "/register", "/auth/callback"];
   const isAuthPage = authPaths.includes(location.pathname);
 
   if (isAuthPage) return <>{children}</>;
+
+  // Redirect to login if no session
+  if (!session) return <Navigate to="/login" replace />;
 
   return (
     <div className="flex bg-gray-50 min-h-screen">
@@ -37,26 +40,45 @@ function LayoutWrapper({ children }) {
 }
 
 function App() {
+  const [session, setSession] = useState(undefined);
   const [userType, setUserType] = useState(null);
 
   useEffect(() => {
-    supabase.auth.onAuthStateChange(async (event, session) => {
-      if (session) {
-        const { data } = await supabase
-          .from("user")
-          .select("user_type")
-          .eq("id", session.user.id)
-          .single();
-        setUserType(data?.user_type ?? null);
-      } else {
-        setUserType(null);
-      }
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      if (session) loadUserType(session.user.id);
     });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      setSession(session);
+      if (session) loadUserType(session.user.id);
+      else setUserType(null);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
+
+  async function loadUserType(userId) {
+    const { data } = await supabase
+      .from("user")
+      .select("user_type")
+      .eq("id", userId)
+      .single();
+    setUserType(data?.user_type ?? null);
+  }
+
+  // Show nothing while session is loading
+  if (session === undefined) return (
+    <div className="flex items-center justify-center h-screen text-gray-400">
+      Loading...
+    </div>
+  );
 
   return (
     <BrowserRouter>
-      <LayoutWrapper>
+      <LayoutWrapper session={session}>
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/customers" element={<Customers />} />
