@@ -1,0 +1,76 @@
+HOPE, INC. – CUSTOMER MANAGEMENT SYSTEM
+Sprint 1 QA & Documentation Report
+New Era University – College of Computer Studies
+ Sprint Theme: Project Setup, CMS Database & Authentication
+________________________________________
+1. Introduction
+Sprint 1 focused on establishing the initial foundation of the HOPE, INC. Customer Management System (CMS). The sprint included project setup, Supabase connection, authentication implementation, routing configuration, UI layout verification, and navigation testing.
+The purpose of this report is to document the completed QA checks, system verification, and overall Sprint 1 deliverables.
+________________________________________
+2. Sprint Objectives
+The following objectives were expected during Sprint 1:
+●	Configure project environment successfully
+●	Connect the system to Supabase
+●	Implement authentication pages
+●	Configure routing and protected pages
+●	Verify navigation and page accessibility
+●	Test UI responsiveness and layout stability
+________________________________________
+3. Project Setup Verification
+Project Setup Checklist	Status	Remarks
+Project runs using npm run dev	✅ PASS	Vite server launches successfully
+No major startup errors	✅ PASS	No critical issues encountered
+Vite development server works properly	✅ PASS	Localhost renders correctly
+.env configuration connected properly	✅ PASS	Environment variables working
+Supabase connection established	✅ PASS	Database connection successful
+________________________________________
+4. Pages & Navigation Testing
+Page / Feature	Status	Remarks
+Dashboard page loads	✅ PASS	Page accessible
+Customers page loads	✅ PASS	Functional
+Products page loads	✅ PASS	Functional
+Sales page loads	✅ PASS	Functional
+Login page loads	✅ PASS	Authentication page operational
+Register page loads	✅ PASS	Registration page operational
+Reports pages load	✅ PASS	Pages accessible
+Navigation between pages works	✅ PASS	Routing functional
+________________________________________
+5. UI & Layout Verification
+UI Component	Status	Remarks
+Sidebar displays properly	✅ PASS	Visible and responsive
+Navbar displays properly	✅ PASS	Functional
+Main content layout stable	✅ PASS	No layout issues
+Responsive design works	✅ PASS	Mobile and desktop compatible
+________________________________________
+6. Authentication Testing
+Authentication Feature	Status	Remarks
+Login functionality	✅ PASS	Users can log in
+Register functionality	✅ PASS	User registration operational
+Google OAuth integration	✅ PASS	Google login connected
+Session persistence	✅ PASS	Sessions maintained
+Protected routes	✅ PASS	Unauthorized users blocked
+________________________________________
+7. QA Observations
+●	System foundation was successfully initialized.
+●	Frontend routing and navigation functioned correctly.
+●	Supabase integration operated properly.
+●	Authentication pages were fully accessible.
+●	No major UI or responsiveness issues were encountered during testing.
+________________________________________
+8. Sprint 1 Deliverables Completed
+●	✅ Project setup completed
+●	✅ Supabase connected successfully
+●	✅ Authentication pages implemented
+●	✅ Navigation and routing verified
+●	✅ Responsive layout tested
+●	✅ Initial QA verification completed
+________________________________________
+9. Pull Request Documentation
+Pull Request	Status
+test/sprint1-auth-flows	✅ Completed
+docs/sprint1-log-readme	✅ Completed
+________________________________________
+10. Conclusion
+Sprint 1 successfully established the initial structure and core functionality of the HOPE, INC. Customer Management System. Project setup, authentication, routing, and UI verification were completed successfully, allowing the project to proceed to Sprint 2 implementation and security testing.
+
+
