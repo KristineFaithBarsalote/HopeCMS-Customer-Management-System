@@ -10,7 +10,11 @@ export default function CustomerSalesSummaryPage() {
   async function fetchData() {
     setLoading(true);
     const { data, error } = await supabase
-      .from("customer_sales_summary").select("*");
+      .from("customer_sales_summary")
+      .select("*")
+      .order("total_spent", { ascending: false }) 
+      .limit(10); 
+
     if (error) console.error(error.message);
     else setData(data || []);
     setLoading(false);
@@ -40,8 +44,8 @@ export default function CustomerSalesSummaryPage() {
                   <td className="p-4 text-sm font-mono text-blue-600">{row.custno}</td>
                   <td className="p-4 text-sm text-gray-800">{row.custname}</td>
                   <td className="p-4 text-sm text-right font-bold">{row.total_orders}</td>
-                  <td className="p-4 text-sm text-right font-bold">
-                    ₱{Number(row.total_spent).toLocaleString("en-PH", { minimumFractionDigits: 2 })}
+                  <td className="p-4 text-sm text-right font-bold text-emerald-600">
+                    ₱{Number(row.total_spent || 0).toLocaleString("en-PH", { minimumFractionDigits: 2 })}
                   </td>
                 </tr>
               ))}

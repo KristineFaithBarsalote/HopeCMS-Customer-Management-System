@@ -1,7 +1,9 @@
 import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { supabase } from "./lib/supabase";
 
-import Sidebar from "./components/Sidebar";
-import Navbar from "./components/Navbar";
+import Sidebar from "./Components/Sidebar";
+import Navbar from "./Components/Navbar";
 
 import Dashboard from "./pages/Dashboard";
 import Customers from "./pages/Customers";
@@ -11,7 +13,7 @@ import Products from "./pages/Products";
 import Sales from "./pages/Sales";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import AuthCallback from "./pages/AuthCallback";
+import AuthCallback from "./pages/AuthCallBack";
 import UserManagement from "./pages/UserManagement";
 import CustomerSalesSummaryPage from "./pages/CustomerSalesSummaryPage";
 import ProductRevenuePage from "./pages/ProductRevenuePage";
@@ -21,25 +23,36 @@ function LayoutWrapper({ children }) {
   const authPaths = ["/login", "/register", "/auth/callback"];
   const isAuthPage = authPaths.includes(location.pathname);
 
-  if (isAuthPage) {
-    return <>{children}</>;
-  }
+  if (isAuthPage) return <>{children}</>;
 
   return (
     <div className="flex bg-gray-50 min-h-screen">
       <Sidebar />
       <div className="flex-1 flex flex-col">
         <Navbar />
-        <main className="p-8">
-          {children}
-        </main>
+        <main className="p-8">{children}</main>
       </div>
     </div>
   );
 }
 
 function App() {
-  const currentUser = { user_type: 'ADMIN', rights: { cust_del: 1 } };
+  const [userType, setUserType] = useState(null);
+
+  useEffect(() => {
+    supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session) {
+        const { data } = await supabase
+          .from("user")
+          .select("user_type")
+          .eq("id", session.user.id)
+          .single();
+        setUserType(data?.user_type ?? null);
+      } else {
+        setUserType(null);
+      }
+    });
+  }, []);
 
   return (
     <BrowserRouter>
@@ -49,7 +62,7 @@ function App() {
           <Route path="/customers" element={<Customers />} />
           <Route path="/customers/:id" element={<CustomerDetail />} />
           <Route path="/deleted-customers" element={
-            currentUser?.user_type === 'USER'
+            userType === "USER"
               ? <Navigate to="/customers" />
               : <DeletedCustomers />
           } />

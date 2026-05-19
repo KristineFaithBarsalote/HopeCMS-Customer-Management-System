@@ -1,52 +1,19 @@
 import { useState } from "react";
 import { supabase } from "../lib/supabase";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
-  async function ensureUserRecord(user) {
-    const { data: existing } = await supabase
-      .from("user")
-      .select("id")
-      .eq("id", user.id)
-      .single();
-
-    if (!existing) {
-      await supabase.from("user").insert({
-        id: user.id,
-        email: user.email,
-        username: user.email.split("@")[0],
-        first_name: user.user_metadata?.full_name?.split(" ")[0] || "",
-        last_name: user.user_metadata?.full_name?.split(" ")[1] || "",
-        user_type: "USER",
-        record_status: "INACTIVE",
-        stamp: `Created on ${new Date().toISOString()}`
-      });
-
-      const { data: allRights } = await supabase
-        .from("rights")
-        .select("rightCode");
-
-      if (allRights) {
-        const rightRows = allRights.map(r => ({
-          userid: user.id,
-          rightCode: r.rightCode,
-          right_value: 0
-        }));
-        await supabase.from("UserModule_Rights").insert(rightRows);
-      }
-    }
-  }
+  const navigate = useNavigate();
 
   const handleLogin = async () => {
     setLoading(true);
     setError("");
 
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
@@ -57,8 +24,7 @@ export default function Login() {
       return;
     }
 
-    await ensureUserRecord(data.user);
-    window.location.href = "/";
+    navigate("/");
     setLoading(false);
   };
 

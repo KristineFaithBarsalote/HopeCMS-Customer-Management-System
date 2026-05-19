@@ -1,13 +1,28 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
-import { useRights } from "../lib/useRights";
+import { supabase } from "../lib/supabase";
 
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
-  const { rights, userType } = useRights();
+  const [userType, setUserType] = useState(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      console.log("SESSION:", session);
+      if (session) {
+        const { data, error } = await supabase
+          .from("user")
+          .select("user_type")
+          .eq("id", session.user.id)
+          .single();
+        console.log("USER TYPE DATA:", data);
+        console.log("ERROR:", error);
+        setUserType(data?.user_type ?? null);
+      }
+    });
+  }, []);
 
   const isAdmin = userType === "ADMIN" || userType === "SUPERADMIN";
-  const hasAdminRight = rights.ADM_USER === 1;
 
   const links = [
     { name: "Dashboard",       path: "/",                        icon: "📊", show: true },
@@ -15,15 +30,13 @@ export default function Sidebar() {
     { name: "Products",        path: "/products",                icon: "📦", show: true },
     { name: "Sales",           path: "/sales",                   icon: "💰", show: true },
     { name: "Deleted",         path: "/deleted-customers",       icon: "🗑️", show: isAdmin },
-    // Admin link gated by ADM_USER right
-    { name: "Admin - Users",   path: "/admin/users",             icon: "🔐", show: hasAdminRight },
+    { name: "Admin - Users",   path: "/admin/users",             icon: "🔐", show: isAdmin },
     { name: "Customer Sales",  path: "/reports/customer-sales",  icon: "📈", show: true },
     { name: "Product Revenue", path: "/reports/product-revenue", icon: "💹", show: true },
   ];
 
   return (
     <>
-      {/* Mobile toggle button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="md:hidden fixed top-4 left-4 z-50 bg-slate-900 text-white p-2 rounded-lg"
@@ -31,7 +44,6 @@ export default function Sidebar() {
         {isOpen ? "✕" : "☰"}
       </button>
 
-      {/* Overlay for mobile */}
       {isOpen && (
         <div
           className="md:hidden fixed inset-0 bg-black/50 z-30"
@@ -39,7 +51,6 @@ export default function Sidebar() {
         />
       )}
 
-      {/* Sidebar */}
       <div className={`
         fixed md:static inset-y-0 left-0 z-40
         w-64 h-screen bg-slate-900 text-white p-5 flex flex-col
