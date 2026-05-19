@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { supabase } from "../lib/supabase";
-import SalesHistoryPanel from "../components/SalesHistoryPanel";
-import SalesDetailModal from "../components/SalesDetailModal";
+import SalesHistoryPanel from "../Components/SalesHistoryPanel";
+import SalesDetailModal from "../Components/SalesDetailModal";
 
 export default function CustomerDetail() {
   const { id } = useParams();
@@ -38,14 +38,12 @@ export default function CustomerDetail() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
-      {/* Breadcrumbs */}
       <nav className="text-sm text-gray-500">
         <Link to="/customers" className="hover:text-blue-600">Customers</Link>
         {" / "}
         <span className="text-gray-800">{customer.custname}</span>
       </nav>
 
-      {/* Profile Header */}
       <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm flex justify-between items-start">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">{customer.custname}</h1>
@@ -70,13 +68,11 @@ export default function CustomerDetail() {
         </span>
       </div>
 
-      {/* Sales History Panel */}
       <SalesHistoryPanel
         custno={customer.custno}
         onViewDetail={handleViewItems}
       />
 
-      {/* Transaction Detail Modal */}
       <SalesDetailModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
